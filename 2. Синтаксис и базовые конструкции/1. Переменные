@@ -1,0 +1,772 @@
+## Переменные в Python
+
+### Основы переменных
+**Переменная** — это именованная область памяти для хранения данных. В Python переменная — это скорее **имя (ярлык)**, которое ссылается на объект.
+
+#### Создание переменной
+```python
+# Просто присвойте значение - переменная создается автоматически
+name = "Анна"
+age = 25
+height = 1.75
+is_student = True
+
+print(name)      # Анна
+print(age)       # 25
+```
+
+#### Переменная как ярлык
+```python
+# Представьте, что объекты - это люди, а переменные - их имена
+x = [1, 2, 3]    # Создали список и назвали его "x"
+y = x            # Теперь у того же списка два имени: "x" и "y"
+y.append(4)      # Изменяем по имени "y"
+print(x)         # [1, 2, 3, 4] - изменения видны и через "x"!
+```
+
+#### Встроенная функция id() — "паспорт" объекта
+```python
+x = 42
+y = x
+z = 42
+
+print(id(x))      # Уникальный идентификатор объекта
+print(id(y))      # Такой же, как у x (ссылаются на тот же объект)
+print(id(z))      # Может быть таким же! Python оптимизирует числа
+
+# Проверка, указывают ли переменные на один объект
+print(x is y)     # True (это один объект)
+print(x is z)     # Может быть True для маленьких чисел
+```
+
+### Правила именования
+#### Жесткие правила (нарушить нельзя)
+```python
+# 1. Только буквы, цифры и подчеркивание
+valid_name = "ok"
+user123 = "ok"
+_private = "ok"
+user_name = "ok"
+
+# 2. Нельзя начинать с цифры
+1user = "error"  # SyntaxError: invalid decimal literal
+
+# 3. Нельзя использовать ключевые слова
+import keyword
+print(keyword.kwlist)
+# ['False', 'None', 'True', 'and', 'as', 'assert', 'async', 'await', ...]
+
+class = "error"   # SyntaxError: invalid syntax
+```
+
+#### Соглашения по стилю (PEP 8)
+```python
+# 1. snake_case для переменных и функций
+user_age = 25
+first_name = "Иван"
+calculate_total = lambda x: x * 1.2
+
+# 2. UPPER_CASE для констант
+MAX_SIZE = 100
+DEFAULT_COLOR = "blue"
+
+# 3. _single_underscore для "приватных" переменных
+_internal_var = "только для внутреннего использования"
+
+# 4. __double_underscore для name mangling (редко)
+__very_private = "сильно защищено"
+
+# 5. __dunder__ (double underscore) для специальных методов
+__init__, __str__, __repr__  # системные имена
+```
+
+#### Осмысленные имена
+```python
+# Плохо
+a = 35
+b = 12
+c = a * b
+
+# Хорошо
+hours_per_day = 8
+days_per_week = 5
+total_work_hours = hours_per_day * days_per_week
+
+# Еще лучше с контекстом
+employee_hours_per_day = 8
+working_days_per_week = 5
+weekly_workload = employee_hours_per_day * working_days_per_week
+```
+
+#### Ложные друзья (избегайте)
+```python
+# Не используйте имена встроенных функций
+list = [1, 2, 3]           # Теперь list() не работает!
+dict = {"a": 1}            # И dict() тоже!
+str = "hello"              # str() тоже сломано
+
+# Восстановление - del или перезапуск
+del list, dict, str
+```
+
+### Динамическая типизация
+Это ключевая особенность Python: переменные могут менять тип.
+
+#### Суть динамической типизации
+```python
+# Переменная может ссылаться на объекты разных типов
+x = 42                # x - целое число
+print(type(x))        # <class 'int'>
+
+x = "hello"           # x - строка
+print(type(x))        # <class 'str'>
+
+x = [1, 2, 3]         # x - список
+print(type(x))        # <class 'list'>
+
+# В статически типизированных языках (Java, C++) так нельзя!
+```
+
+#### Сравнение со статической типизацией
+```python
+# Python (динамическая)
+def process_data(data):
+    # data может быть чем угодно - проверим во время выполнения
+    if isinstance(data, str):
+        return data.upper()
+    elif isinstance(data, (int, float)):
+        return data * 2
+    else:
+        return str(data)
+
+# Java (статическая) - пришлось бы писать перегруженные методы
+# String processData(String data) { ... }
+# int processData(int data) { ... }
+# double processData(double data) { ... }
+```
+
+#### Утиная типизация (Duck Typing)
+```python
+# "Если это ходит как утка и крякает как утка, значит это утка"
+def make_sound(animal):
+    # Нам не важен тип, главное - наличие метода sound()
+    return animal.sound()
+
+class Dog:
+    def sound(self):
+        return "Woof!"
+
+class Cat:
+    def sound(self):
+        return "Meow!"
+
+class Car:
+    def sound(self):
+        return "Beep!"
+
+print(make_sound(Dog()))    # Woof!
+print(make_sound(Cat()))    # Meow!
+print(make_sound(Car()))    # Beep! - Машина тоже работает!
+```
+
+#### Плюсы и минусы динамической типизации
+
+| Плюсы | Минусы |
+|-------|--------|
+| Быстрое прототипирование | Ошибки типов могут проявиться в рантайме |
+| Меньше кода | Меньше самодокументируемости |
+| Утиная типизация - гибкость | Сложнее поддерживать большие проекты |
+| Легче для новичков | Медленнее (проверки во время выполнения) |
+
+### Множественное присвоение
+Python позволяет присваивать значения нескольким переменным одновременно.
+
+#### Базовая форма
+```python
+# Присвоить одно значение нескольким переменным
+x = y = z = 0
+print(x, y, z)  # 0 0 0
+
+# Осторожно! Для изменяемых объектов это создает ссылки на один объект
+a = b = c = []
+a.append(1)
+print(b)        # [1] - все три указывают на один список!
+print(c)        # [1]
+```
+
+#### Распаковка последовательностей
+```python
+# Присвоить разные значения
+name, age, city = "Анна", 25, "Москва"
+print(name)  # Анна
+print(age)   # 25
+
+# Работает с любыми итерируемыми объектами
+coordinates = (10, 20)
+x, y = coordinates
+print(x, y)  # 10 20
+
+# Строка тоже последовательность
+a, b, c = "ABC"
+print(a, b, c)  # A B C
+```
+
+#### Распаковка со звездочкой (Python 3+)
+```python
+# * собирает "остаток"
+first, *rest = [1, 2, 3, 4, 5]
+print(first)  # 1
+print(rest)   # [2, 3, 4, 5]
+
+*beginning, last = [1, 2, 3, 4, 5]
+print(beginning)  # [1, 2, 3, 4]
+print(last)       # 5
+
+first, *middle, last = [1, 2, 3, 4, 5]
+print(first)   # 1
+print(middle)  # [2, 3, 4]
+print(last)    # 5
+
+# Игнорирование значений через _
+_, important, *_ = [1, 2, 3, 4, 5]
+print(important)  # 2
+```
+
+#### Обмен значений (сваппинг)
+```python
+# В других языках нужна временная переменная
+a = 5
+b = 10
+
+# В Python - элегантно
+a, b = b, a
+print(a, b)  # 10 5
+
+# Работает для любого количества переменных
+x, y, z = 1, 2, 3
+x, y, z = z, x, y
+print(x, y, z)  # 3 1 2
+```
+
+---
+
+### Константы
+В Python нет настоящих констант (неизменяемых переменных). Это вопрос соглашения.
+
+#### Соглашение об именовании
+```python
+# Константы пишутся ЗАГЛАВНЫМИ_БУКВАМИ
+PI = 3.14159
+MAX_CONNECTIONS = 1000
+DEFAULT_TIMEOUT = 30
+API_KEY = "abc123xyz"
+
+# Ничто не мешает изменить "константу"
+PI = 3.14  # Python не запретит, но так делать НЕЛЬЗЯ!
+```
+
+#### "Настоящие" константы через enum
+```python
+from enum import Enum
+
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+    BLUE = 3
+
+print(Color.RED)        # Color.RED
+print(Color.RED.value)  # 1
+
+# Попытка изменения
+Color.RED = 5  # AttributeError: Cannot reassign enum member
+```
+
+#### Иммутабельные структуры данных
+
+```python
+from types import MappingProxyType
+
+# Неизменяемый словарь
+config = {"host": "localhost", "port": 8080}
+immutable_config = MappingProxyType(config)
+
+print(immutable_config["host"])  # localhost
+immutable_config["host"] = "new"  # TypeError: 'mappingproxy' object does not support item assignment
+
+# Но сам config можно менять!
+config["host"] = "new"
+print(immutable_config["host"])  # new - изменилось!
+```
+
+#### Константы через функцию (для сложной логики)
+```python
+def get_constants():
+    """Функция, возвращающая неизменяемые константы"""
+    return {
+        'PI': 3.14159,
+        'E': 2.71828,
+        'SPEED_OF_LIGHT': 299792458
+    }
+
+# Можно использовать, но не менять
+const = get_constants()
+print(const['PI'])
+
+# Изменение не повлияет на оригинал
+const['PI'] = 3.14  # Меняем копию, не страшно
+```
+
+### Понимание ссылок
+Это самая важная тема для понимания работы Python.
+
+#### Изменяемые и неизменяемые типы
+```python
+# НЕИЗМЕНЯЕМЫЕ (immutable) - при изменении создается новый объект
+# int, float, str, tuple, frozenset
+
+x = 5
+print(id(x))  # 140735322987552
+
+x = x + 1
+print(id(x))  # 140735322987584 (новый ID - новый объект!)
+
+# ИЗМЕНЯЕМЫЕ (mutable) - объект можно изменить без создания нового
+# list, dict, set, bytearray
+
+lst = [1, 2, 3]
+print(id(lst))  # 4498769728
+
+lst.append(4)
+print(id(lst))  # 4498769728 (тот же ID - объект изменен на месте)
+```
+
+#### Присваивание vs Копирование
+```python
+import copy
+
+# Присваивание - копируется ссылка (не данные)
+original = [1, 2, [3, 4]]
+assigned = original  # Просто еще одно имя для того же объекта
+
+# Поверхностное копирование (shallow copy) - копирует структуру, но не вложенные объекты
+shallow = original.copy()        # для списков
+shallow = list(original)         # еще способ
+shallow = copy.copy(original)    # универсальный
+
+# Глубокое копирование (deep copy) - рекурсивно копирует всё
+deep = copy.deepcopy(original)
+
+# Демонстрация различий
+original[0] = 100
+original[2][0] = 999
+
+print(f"original: {original}")  # [100, 2, [999, 4]]
+print(f"assigned: {assigned}")  # [100, 2, [999, 4]] - изменилось
+print(f"shallow:  {shallow}")   # [1, 2, [999, 4]] - внешний не изменился, внутренний да
+print(f"deep:     {deep}")       # [1, 2, [3, 4]] - полностью независим
+```
+
+#### Передача аргументов в функции
+```python
+# В Python передача аргументов осуществляется по ссылке (по объекту)
+# но поведение зависит от типа объекта
+
+def modify_data(data):
+    print(f"ID внутри функции (до): {id(data)}")
+    
+    if isinstance(data, list):
+        data.append(100)  # Изменяет объект
+    else:
+        data = data * 2   # Создает новый объект (присваивание параметру)
+    
+    print(f"ID внутри функции (после): {id(data)}")
+
+# Список (изменяемый)
+my_list = [1, 2, 3]
+print(f"ID до вызова: {id(my_list)}")  # 4498769728
+modify_data(my_list)
+print(f"my_list после: {my_list}")     # [1, 2, 3, 100] - изменился!
+
+# Число (неизменяемое)
+my_num = 5
+print(f"ID до вызова: {id(my_num)}")   # 140735322987552
+modify_data(my_num)
+print(f"my_num после: {my_num}")       # 5 - не изменилось!
+```
+
+#### Практические примеры ошибок со ссылками
+```python
+# ОШИБКА 1: Создание списка списков
+# Хотим: [[], [], []]
+wrong = [[]] * 3
+wrong[0].append(1)
+print(wrong)  # [[1], [1], [1]] - все ссылаются на один список!
+
+# Правильно:
+correct = [[] for _ in range(3)]
+correct[0].append(1)
+print(correct)  # [[1], [], []]
+
+# ОШИБКА 2: Значения по умолчанию в функциях
+def add_item(item, lst=[]):
+    lst.append(item)
+    return lst
+
+print(add_item(1))  # [1]
+print(add_item(2))  # [1, 2] - использует ТОТ ЖЕ список!
+
+# Правильно:
+def add_item_correct(item, lst=None):
+    if lst is None:
+        lst = []
+    lst.append(item)
+    return lst
+
+# ОШИБКА 3: Изменение во время итерации
+numbers = [1, 2, 3, 4, 5]
+# Хотим удалить все четные
+for num in numbers:
+    if num % 2 == 0:
+        numbers.remove(num)  # Опасно - меняем список во время итерации
+print(numbers)  # [1, 3, 5]? А где 4? [1, 3, 4, 5] - сработало не так!
+
+# Правильно:
+numbers = [1, 2, 3, 4, 5]
+numbers = [num for num in numbers if num % 2 != 0]  # создаем новый список
+print(numbers)  # [1, 3, 5]
+```
+
+### Аннотации типов (Type Hints)
+Начиная с Python 3.5, можно (но не обязательно) указывать типы.
+
+#### Базовая аннотация
+```python
+def greet(name: str) -> str:
+    return f"Hello, {name}"
+
+age: int = 25
+name: str = "Анна"
+is_active: bool = True
+
+# Аннотации не влияют на выполнение
+age = "двадцать пять"  # Никакой ошибки! Это просто подсказка
+```
+
+#### Аннотации для коллекций
+```python
+from typing import List, Dict, Tuple, Set, Optional, Union
+
+# Списки
+names: List[str] = ["Анна", "Иван", "Мария"]
+matrix: List[List[int]] = [[1, 2], [3, 4]]
+
+# Словари
+user: Dict[str, int] = {"age": 25, "id": 12345}
+nested: Dict[str, List[int]] = {"scores": [90, 85, 88]}
+
+# Кортежи
+point: Tuple[int, int] = (10, 20)
+mixed: Tuple[str, int, bool] = ("user", 25, True)
+
+# Множества
+tags: Set[str] = {"python", "programming", "code"}
+
+# Optional - может быть тип или None
+maybe_name: Optional[str] = None
+maybe_name = "Анна"  # тоже можно
+
+# Union - один из типов
+id_value: Union[int, str] = 123
+id_value = "ABC123"
+```
+
+#### Сложные типы и TypeVars
+```python
+from typing import TypeVar, Generic, Callable, Any
+
+T = TypeVar('T')  # Обобщенный тип
+
+def first_element(lst: List[T]) -> T:
+    return lst[0]
+
+# Работает с любым типом
+print(first_element([1, 2, 3]))       # int
+print(first_element(["a", "b"]))      # str
+
+# Callable - функция
+def apply(func: Callable[[int], str], value: int) -> str:
+    return func(value)
+
+# Any - абсолютно любой тип
+def process(data: Any) -> Any:
+    return data
+```
+
+#### Классы и аннотации
+```python
+from typing import ClassVar
+
+class User:
+    # ClassVar - переменная класса
+    count: ClassVar[int] = 0
+    
+    def __init__(self, name: str, age: int) -> None:
+        self.name: str = name
+        self.age: int = age
+        User.count += 1
+    
+    def birthday(self) -> None:
+        self.age += 1
+    
+    def get_info(self) -> str:
+        return f"{self.name} ({self.age})"
+```
+
+#### Проверка типов с mypy
+```bash
+# Установка
+pip install mypy
+
+# Проверка
+mypy my_script.py
+
+# Пример: script.py
+def add(a: int, b: int) -> int:
+    return a + b
+
+add(5, "10")  # mypy покажет ошибку!
+
+# Запуск с настройками
+mypy --strict my_script.py
+```
+
+### Область видимости (Scope)
+Правила, определяющие, где какая переменная доступна.
+
+#### LEGB-правило
+Python ищет переменные в порядке:
+**L**ocal → **E**nclosing → **G**lobal → **B**uilt-in
+
+```python
+# Built-in (встроенные)
+print, len, int  # всегда доступны
+
+# Global (глобальные)
+x = "global"
+
+def outer():
+    # Enclosing (объемлющая)
+    x = "enclosing"
+    
+    def inner():
+        # Local (локальная)
+        x = "local"
+        print(x)  # local
+    
+    inner()
+    print(x)      # enclosing
+
+outer()
+print(x)          # global
+```
+
+#### Глобальные переменные
+```python
+counter = 0
+
+def increment():
+    global counter  # Без этого создаст локальную переменную!
+    counter += 1
+    return counter
+
+print(increment())  # 1
+print(increment())  # 2
+print(counter)      # 2
+```
+
+#### Nonlocal (для замыканий)
+```python
+def make_counter():
+    count = 0
+    
+    def counter():
+        nonlocal count  # берем из внешней, но не глобальной функции
+        count += 1
+        return count
+    
+    return counter
+
+c1 = make_counter()
+print(c1())  # 1
+print(c1())  # 2
+
+c2 = make_counter()
+print(c2())  # 1 (независимый счетчик)
+```
+
+#### Область видимости в циклах и условиях
+```python
+# В Python блоки не создают область видимости!
+if True:
+    x = 10
+print(x)  # 10 - доступно!
+
+for i in range(3):
+    y = i * 2
+print(y)  # 4 - последнее значение i=2
+
+# Исключение: list comprehensions (Python 3)
+z = [n for n in range(5)]
+print(n)  # NameError: name 'n' is not defined
+```
+
+### Производительность
+Как работа с переменными влияет на скорость.
+
+#### Поиск переменных (быстрота доступа)
+```python
+import timeit
+
+# Локальные переменные - самые быстрые
+def use_local():
+    x = 42
+    for _ in range(1000):
+        x + 1
+
+# Глобальные - медленнее
+x_global = 42
+def use_global():
+    for _ in range(1000):
+        x_global + 1
+
+# Built-in - тоже медленнее локальных
+def use_builtin():
+    for _ in range(1000):
+        len([1, 2, 3])
+
+# Лучше кешировать в локальной переменной
+def use_cached():
+    local_len = len
+    for _ in range(1000):
+        local_len([1, 2, 3])
+
+# Сравнение
+print("local:", timeit.timeit(use_local, number=10000))
+print("global:", timeit.timeit(use_global, number=10000))
+print("builtin:", timeit.timeit(use_builtin, number=10000))
+print("cached:", timeit.timeit(use_cached, number=10000))
+```
+
+#### Интернирование строк
+```python
+# Python оптимизирует некоторые строки
+a = "hello"
+b = "hello"
+print(a is b)  # True (интернированы - один объект)
+
+c = "hello world!"
+d = "hello world!"
+print(c is d)  # False (обычно не интернируются)
+
+# Маленькие числа тоже кешируются (-5 до 256)
+e = 256
+f = 256
+print(e is f)  # True
+
+g = 257
+h = 257
+print(g is h)  # False (в разных ячейках)
+```
+
+#### Избегайте лишних копий
+```python
+# Плохо - создает копию
+def process_bad(data):
+    data = list(data)  # лишняя копия
+    for i in range(len(data)):
+        data[i] *= 2
+    return data
+
+# Хорошо - работает с оригиналом
+def process_good(data):
+    return [x * 2 for x in data]
+
+# Очень плохо - конкатенация строк в цикле
+def build_string_bad(n):
+    result = ""
+    for i in range(n):
+        result += str(i)  # создается новая строка на каждой итерации!
+    return result
+
+# Хорошо - используйте список
+def build_string_good(n):
+    parts = []
+    for i in range(n):
+        parts.append(str(i))
+    return "".join(parts)
+```
+
+### Частые вопросы и ключевые выводы
+#### FAQ
+**В: Что такое переменная в Python?**
+**О:** Это имя (ярлык), которое ссылается на объект в памяти. Не контейнер, а ссылка.
+
+**В: Почему a = 5; b = a; a = 6; print(b) выводит 5?**
+**О:** Потому что числа неизменяемы. `b` ссылался на объект 5, а `a` начал ссылаться на новый объект 6. `b` все еще ссылается на 5.
+
+**В: Как скопировать список, а не ссылку?**
+**О:** `new_list = old_list.copy()` или `new_list = list(old_list)` для поверхностной копии; `copy.deepcopy(old_list)` для глубокой.
+
+**В: Нужно ли использовать аннотации типов?**
+**О:** В небольших скриптах — не обязательно. В больших проектах — очень желательно. Это документация и раннее обнаружение ошибок через mypy.
+
+**В: Что быстрее — глобальные или локальные переменные?**
+**О:** Локальные — быстрее. Всегда кешируйте часто используемые глобальные переменные в локальные внутри функций.
+
+**В: Почему нельзя менять список во время итерации?**
+**О:** Потому что индекс итерации сбивается — вы можете пропустить элементы или обработать их дважды. Создавайте новый список.
+
+#### Ключевые выводы
+```python
+"""
+1. Переменные - это ссылки на объекты, а не контейнеры
+2. Всё в Python - объекты
+3. Изменяемые типы можно менять "на месте", неизменяемые - нет
+4. Присваивание никогда не копирует данные, только ссылки
+5. Используйте copy и deepcopy когда нужна независимость
+6. Имена переменных должны быть осмысленными
+7. Избегайте глобальных переменных (или используйте global явно)
+8. Аннотации типов делают код понятнее и безопаснее
+9. Помните о LEGB для поиска переменных
+10. Профилируйте код, если важна производительность
+"""
+```
+
+#### Ментальная модель для новичков
+```python
+"""
+Представьте, что память - это большой склад с ящиками.
+В каждом ящике лежит объект (число, строка, список...).
+Переменная - это стикер с именем, который вы клеите на ящик.
+
+Когда вы пишете x = [1, 2, 3]:
+- Создается ящик со списком [1, 2, 3]
+- На него клеится стикер "x"
+
+Когда вы пишете y = x:
+- Новый ящик НЕ создается
+- На старый ящик клеится еще один стикер "y"
+
+Когда вы пишете x.append(4):
+- Вы открываете ящик со стикером "x" и добавляете 4
+- Ящик тот же, содержимое изменилось
+- y тоже видит это, потому что это тот же ящик!
+
+Когда вы пишете x = [5, 6, 7]:
+- Создается НОВЫЙ ящик со списком [5, 6, 7]
+- Стикер "x" переклеивается на новый ящик
+- Стикер "y" остается на старом ящике ([1, 2, 3, 4])
+"""
+```
+
+Понимание переменных — это фундамент. Как только вы освоите концепцию "переменная-это-ссылка", многие "магические" ошибки исчезнут сами собой!
